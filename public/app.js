@@ -110,3 +110,43 @@ function googleLogin() {
 		})
 		.catch(console.log);
 }
+
+function uploadFile(files) {
+    const storageRef = firebase.storage().ref();
+    const imgRef = storageRef.child('horse2.jpg');
+
+    const file = files.item(0);
+
+    const task = imgRef.put(file)
+
+    task.on('state_changed',
+      (snapshot) => {
+        // Observe state change events such as progress, pause, and resume
+        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        switch (snapshot.state) {
+          case firebase.storage.TaskState.PAUSED: // or 'paused'
+            console.log('Upload is paused');
+            break;
+          case firebase.storage.TaskState.RUNNING: // or 'running'
+            console.log('Upload is running');
+            break;
+        }
+      },
+      (error) => {
+        // Handle unsuccessful uploads
+      	console.error( error );
+      },
+      () => {
+        // Handle successful uploads on complete
+        // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+        task.snapshot.ref.getDownloadURL().then((downloadURL) => {
+          console.log('ORG File available at', downloadURL);
+					$( "#imgUpload").attr( "src", downloadURL);
+        });
+      }
+    );
+
+
+}
