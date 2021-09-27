@@ -25,6 +25,12 @@ document.addEventListener("DOMContentLoaded", event => {
 	});
 
 
+	const directory = "images";
+	const file = 'Waterfall.jpeg';
+	const imgRef = firebase.storage().ref( directory );
+	imgRef.child( file ).getDownloadURL().then( (url) => $( "#imgUpload").attr( "src", url) );
+
+
 
 
 	const productsRef = db.collection( 'products' );
@@ -111,20 +117,35 @@ function googleLogin() {
 		.catch(console.log);
 }
 
+function deleteFile(input ) {
+	const fileName = $( input ).val();
+	console.log( "fileName ", fileName);
+
+	const storageRef = firebase.storage().ref("test");
+	fileRef = storageRef.child( fileName );
+
+	fileRef.delete().then(() => {
+   console.log( "deleted " + fileName);
+  });
+}
+
 function uploadFile(files) {
-    const storageRef = firebase.storage().ref();
-    const imgRef = storageRef.child('horse2.jpg');
+    const storageRef = firebase.storage().ref("test");
 
     const file = files.item(0);
 
-    const task = imgRef.put(file)
+    const fileName = file.name;
+
+    const imgRef = storageRef.child(file.name);
+
+    const task = imgRef.put(file);
 
     task.on('state_changed',
       (snapshot) => {
         // Observe state change events such as progress, pause, and resume
         // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
         var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload is ' + progress + '% done');
+        console.log(fileName + ' upload is ' + progress + '% done');
         switch (snapshot.state) {
           case firebase.storage.TaskState.PAUSED: // or 'paused'
             console.log('Upload is paused');
@@ -143,7 +164,7 @@ function uploadFile(files) {
         // For instance, get the download URL: https://firebasestorage.googleapis.com/...
         task.snapshot.ref.getDownloadURL().then((downloadURL) => {
           console.log('ORG File available at', downloadURL);
-					$( "#imgUpload").attr( "src", downloadURL);
+					//$( "#imgUpload").attr( "src", downloadURL);
         });
       }
     );

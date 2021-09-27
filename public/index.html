@@ -33,11 +33,14 @@
 
 		<div id="welcomeUser"></div>
 
-		<input type="file" onchange="uploadFile(this.files)">
 
-		<img id="imgUpload" src="" />
 
 		<h1 id="title"></h1>
+
+		<input type="file" onchange="uploadFile(this.files)">
+		<input type="text" id="fileToDelete" onchange="deleteFile(this)" />
+
+		<img id="imgUpload" src="" />
 
 
 		Change title: <input onchange="updatePost(event)">
