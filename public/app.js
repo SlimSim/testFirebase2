@@ -30,7 +30,9 @@ document.addEventListener("DOMContentLoaded", event => {
 	const productsRef = db.collection( 'products' );
 	//const query = productsRef.where("price", ">=", 10 );
 	//const query = productsRef.where("price", "==", 10 );
-	const query = productsRef.where("price", ">", 10 ).orderBy('price', "desc").limit(2);
+	//const query = productsRef.where("price", ">", 10 ).orderBy('price', "desc").limit(2);
+	const query = productsRef.where("price", ">", 10 ).orderBy('price', "desc");
+	//const query = productsRef.orderBy('price', "desc");
 
 	/* //one-time read, booring:
 	query.get().then(products => {
@@ -48,9 +50,32 @@ document.addEventListener("DOMContentLoaded", event => {
 		});
 	});
 
-
+	$("#addProduct").on( "click", addProduct );
 
 });
+function addProduct() {
+		console.log( "addProduct -> ");
+	/*
+	import { doc, setDoc } from "firebase/firestore";
+
+	const db = firebase.firestore();
+	console.log( "addProduct: B" );
+	await setDoc(doc(db, "products", "LA"), {
+		name: $( "#name" ).val(),
+		price: $( "#price" ).val()
+	});
+	*/
+
+	const db = firebase.firestore();
+	db.collection( "products").doc( $( "#name" ).val() ).set({
+		name: $( "#name" ).val(),
+		price: Number( $( "#price" ).val() )
+	}).then( () => {
+		console.log( "addProduct: Done!" );
+	}).catch(console.error);
+
+
+}
 
 function updatePost(e){
 	const db = firebase.firestore();
@@ -65,7 +90,8 @@ function googleLogin() {
 	firebase.auth().signInWithPopup( provider )
 		.then( result => {
 			const user = result.user;
-			document.write( `Hello ${user.displayName}` );
+			$( "#welcomeUser" ).text( `Hello ${user.displayName}` );
+			$( "#googleLoginButton" ).remove();
 			console.log( "Logged in user:", user );
 			/*
 			console.log( "auth", user.auth );

@@ -27,13 +27,23 @@
   </head>
   <body>
 
-		<button onclick="googleLogin()">
+		<button id="googleLoginButton" onclick="googleLogin()">
 			Login with Google
 		</button>
 
+		<div id="welcomeUser"></div>
+
+
+
 		<h1 id="title"></h1>
 
-		<input onchange="updatePost(event)">
+
+		Change title: <input onchange="updatePost(event)">
+		<div>
+			Add product: <input id="name" placeholder="name" />
+			<input type="number" id="price" placeholder="price" />
+			<input type="button" value="Add" id="addProduct" />
+		</div>
 
 		<ul id="products">
 
