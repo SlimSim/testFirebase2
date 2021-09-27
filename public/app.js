@@ -28,7 +28,8 @@ document.addEventListener("DOMContentLoaded", event => {
 	const directory = "images";
 	const file = 'Waterfall.jpeg';
 	const imgRef = firebase.storage().ref( directory );
-	imgRef.child( file ).getDownloadURL().then( (url) => $( "#imgUpload").attr( "src", url) );
+	imgRef.child( file ).getDownloadURL()
+	.then( (url) => $( "#imgUpload").attr( "src", url) );
 
 
 
@@ -36,7 +37,8 @@ document.addEventListener("DOMContentLoaded", event => {
 	const productsRef = db.collection( 'products' );
 	//const query = productsRef.where("price", ">=", 10 );
 	//const query = productsRef.where("price", "==", 10 );
-	//const query = productsRef.where("price", ">", 10 ).orderBy('price', "desc").limit(2);
+	//const query = productsRef.where("price", ">", 10 )
+	//									.orderBy('price', "desc").limit(2);
 	const query = productsRef.where("price", ">", 10 ).orderBy('price', "desc");
 	//const query = productsRef.orderBy('price', "desc");
 
@@ -52,7 +54,8 @@ document.addEventListener("DOMContentLoaded", event => {
 		$( "#products" ).empty()
 		products.forEach( doc => {
 			data = doc.data();
-			$( "#products" ).append( $("<li>").text(`${data.name} at $${data.price}`));
+			$( "#products" ).append( $("<li>")
+				.text(`${data.name} at $${data.price}`));
 		});
 	});
 
@@ -143,7 +146,8 @@ function uploadFile(files) {
     task.on('state_changed',
       (snapshot) => {
         // Observe state change events such as progress, pause, and resume
-        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+        // Get task progress, including the number of bytes uploaded
+        // and the total number of bytes to be uploaded
         var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         console.log(fileName + ' upload is ' + progress + '% done');
         switch (snapshot.state) {
@@ -161,7 +165,8 @@ function uploadFile(files) {
       },
       () => {
         // Handle successful uploads on complete
-        // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+        // For instance, get the download URL:
+        //   https://firebasestorage.googleapis.com/...
         task.snapshot.ref.getDownloadURL().then((downloadURL) => {
           console.log('ORG File available at', downloadURL);
 					//$( "#imgUpload").attr( "src", downloadURL);
