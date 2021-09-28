@@ -6,6 +6,7 @@ const environment = {};
 	environment.banner = {};
 
 	switch( window.location.host ) {
+		case "localhost:5000":
 		case "localhost:8000":
 			environment.backend = "http://localhost:8080/ternsjo_Troff";
 			environment.banner.show = true;

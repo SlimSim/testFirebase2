@@ -1,5 +1,6 @@
 const fileHandler = {};
 const backendService = {};
+const firebaseWrapper = {};
 
 $(function () {
 	"use strict";
@@ -10,6 +11,35 @@ $(function () {
 	/************************************************/
 
 	const nameOfCache = "songCache-v1.0";
+
+	const crc32Hash = function(r){
+		for(var a,o=[],c=0;c<256;c++){
+			a=c;for(var f=0;f<8;f++)a=1&a?3988292384^a>>>1:a>>>1;o[c]=a
+		}
+		for(var n=-1,t=0;t<r.length;t++)n=n>>>8^o[255&(n^r.charCodeAt(t))];
+		return(-1^n)>>>0;
+	};
+
+	const hashFile = async function( file ) {
+		return new Promise((resolve, reject) => {
+			let reader = new FileReader();
+			reader.onload = async function (event) {
+				const data = event.target.result;
+				const fileHash = await sha256Hash( data );
+				resolve( fileHash );
+			};
+			reader.onerror = reject;
+			reader.readAsBinaryString(file);
+		});
+	}
+
+	const sha256Hash = async function( object ) {
+		const msgUint8 = new TextEncoder().encode( JSON.stringify(  object ) );
+		const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+		const hashArray = Array.from(new Uint8Array(hashBuffer));
+		const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+		return hashHex;
+	}
 
 	const readFileTypeAndExtension = function( file, callbackFunk ) {
 		var reader = new FileReader();
@@ -175,7 +205,7 @@ $(function () {
                 Please add the song to Troff and try to upload it again.` );
 			}
 
-			return cachedResponse.blob().then( myBlob => {
+			return cachedResponse.blob().then( async myBlob => {
 
 				var file = new File(
 					[myBlob],
@@ -183,21 +213,31 @@ $(function () {
 					{type: myBlob.type}
 				);
 
-				let formData = new FormData();
-				formData.append( "file", file );
-				formData.append( "songTroffInfo", strSongTroffInfo );
+        let fileHash = await hashFile( file );
 
-				const uploadFileEndpoint =  environment.getUploadFileEndpoint();
+				const fileUrl = await firebaseWrapper.uploadFile( fileHash, file );
 
-				console.log( "fileHandler.sendFile: uploadFileEndpoint", uploadFileEndpoint );
-				console.log( "fileHandler.sendFile: formData", formData );
+				const troffData = {
+					//id: - to be added after hashing
+					fileName: file.name,
+					fileType: file.type,
+					fileSize: file.size,
+					fileUrl: fileUrl,
+					markerJsonString: strSongTroffInfo
+				};
 
-				return $.ajax({
-					url: uploadFileEndpoint,
-					type: 'POST',
-					data: formData,
-					contentType: false,
-					processData: false,
+        troffData.id = crc32Hash( JSON.stringify( troffData ) );
+
+				return firebaseWrapper.uploadTroffData( troffData ).then( retVal => {
+					console.log( "retVal", retVal );
+					return {
+						id: troffData.id,
+						fileName: troffData.fileName
+						//fileType: troffData.fileType,
+						//fileSize: troffData.fileSize,
+						//fileId: troffData.fileId,
+						//markerJsonString: troffData.markerJsonString
+					};
 				});
 
 			});
@@ -218,6 +258,60 @@ $(function () {
 			}
 			handleFileWithFileType( file, callbackFunk );
 		}
+	};
+
+	firebaseWrapper.uploadFile = async function( fileId, file ) {
+
+    const storageRef = firebase.storage().ref( "TroffFiles" );
+    const fileRef = storageRef.child( fileId );
+    const task = fileRef.put( file );
+    const fileName = file.name;
+
+		return new Promise((resolve, reject) => {
+
+			task.on('state_changed',
+				(snapshot) => {
+					// Observe state change events such as progress, pause, and resume
+					// Get task progress, including the number of bytes uploaded
+					// and the total number of bytes to be uploaded
+					var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+					console.log("firebase.uploadFile: " + fileName + ' upload is ' + progress + '% done');
+					switch (snapshot.state) {
+						case firebase.storage.TaskState.PAUSED: // or 'paused'
+							console.log('firebase.uploadFile: Upload is paused');
+							break;
+						case firebase.storage.TaskState.RUNNING: // or 'running'
+							//console.log('firebase.uploadFile: Upload is running');
+							break;
+					}
+				},
+				(error) => {
+					// Handle unsuccessful uploads
+					console.error( error );
+					reject( error );
+				},
+				() => {
+					task.snapshot.ref.getDownloadURL().then((downloadURL) => {
+						resolve( downloadURL );
+					});
+				}
+			);
+		});
+
+	};
+
+	firebaseWrapper.uploadTroffData = function( troffData ) {
+		console.log( "firebase.uploadTroffData: troffData", troffData );
+
+		const db = firebase.firestore();
+
+		return db.collection( "TroffData" ).doc( String( troffData.id ) ).set(troffData)
+			.then( ( x ) => {
+				console.log( "firebase.uploadTroffData: DONE!", x );
+				return troffData;
+			})
+			.catch(console.error);
+
 	};
 
 });
