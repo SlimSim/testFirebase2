@@ -127,26 +127,21 @@ $(function () {
 	backendService.getTroffData = async function( troffDataId, fileName ) {
 		const url = environment.getTroffDataEndpoint(troffDataId, fileName);
 
-		return $.ajax({
-			url: url,
-			timeout: 50000,
-		})
-		.then( async function(response) {
-			if( response.status != "OK" ) {
-				throw response;
-			}
-			return response.payload;
+		const db = firebase.firestore();
+		const troffDataReference = db.collection( 'TroffData' ).doc( troffDataId );
+
+		return troffDataReference.get().then( doc => {
+			return doc.data();
 		});
 	};
 
-	fileHandler.fetchAndSaveResponse = async function( fileId, songKey ) {
-		const url = environment.getDownloadFileEndpoint( fileId );
-		return await fetch( url )
+	fileHandler.fetchAndSaveResponse = async function( fileUrl, songKey ) {
+		return await fetch( fileUrl )
 			.then( (response) => {
-			 if( !response.ok ) {
-				throw response;
-			 }
-			 return fileHandler.saveResponse( response, songKey );
+				if( !response.ok ) {
+					throw response;
+				}
+				return fileHandler.saveResponse( response, songKey );
 			});
 	};
 

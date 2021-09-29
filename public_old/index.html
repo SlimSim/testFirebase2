@@ -33,6 +33,25 @@
 -->
 
 
+<!--script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script-->
+   <!-- update the version number as needed -->
+<!--script defer src="/__/firebase/9.0.2/firebase-app-compat.js"></script-->
+   <!-- include only the Firebase features as you need -->
+<!--script defer src="/__/firebase/9.0.2/firebase-auth-compat.js"></script-->
+   <!--script defer src="/__/firebase/9.0.2/firebase-database-compat.js"></script-->
+<!--script defer src="/__/firebase/9.0.2/firebase-firestore-compat.js"></script-->
+   <!--script defer src="/__/firebase/9.0.2/firebase-functions-compat.js"></script-->
+   <!--script defer src="/__/firebase/9.0.2/firebase-messaging-compat.js"></script-->
+<!--script defer src="/__/firebase/9.0.2/firebase-storage-compat.js"></script-->
+   <!--script defer src="/__/firebase/9.0.2/firebase-analytics-compat.js"></script-->
+   <!--script defer src="/__/firebase/9.0.2/firebase-remote-config-compat.js"></script-->
+   <!--script defer src="/__/firebase/9.0.2/firebase-performance-compat.js"></script-->
+   <!--
+     initialize the SDK after all desired features are loaded, set useEmulator to false
+     to avoid connecting the SDK to running emulators.
+   -->
+<!--script defer src="/__/firebase/init.js?useEmulator=true"></script-->
+
 	<link
 			rel="preload"
 			href="/assets/external/Fontello-2021-08-12/font/troff-icon-pack.woff2?2742147"
@@ -154,33 +173,6 @@
 		<div id="banner" class="hidden">
 			<div id="banner-text" class="center text-white bg-danger my-2 p-2">
 			</div>
-		</div>
-		<div>
-
-
-			<div id="welcomeUser"></div>
-
-
-
-			<h1 id="title"></h1>
-
-			<input type="file" onchange="uploadFile(this.files)">
-			<input type="text" id="fileToDelete" onchange="deleteFile(this)" />
-
-			<img id="imgUpload" src="" />
-
-
-			Change title: <input onchange="updatePost(event)">
-			<div>
-				Add product: <input id="name" placeholder="name" />
-				<input type="number" id="price" placeholder="price" />
-				<input type="button" value="Add" id="addProduct" />
-			</div>
-
-			<ul id="products">
-
-			</ul>
-
 		</div>
 		<div id="areaSelector" class="flexRowWrap secondaryColor">
 
@@ -1596,9 +1588,6 @@
 
 	<script defer type="text/javascript" src="FileApiImplementation.js"></script>
 	<script defer type="text/javascript" src="assets/internal/cookie_consent.js"></script>
-
-
-	<script defer src="/app.js"></script>
 
 </body>
 </html>
